@@ -8,7 +8,6 @@
 #   get :show, :id => 1
 
 class ActionController::TestCase
-
   module Behavior
     def process_with_default_locale(action, parameters = nil, session = nil, flash = nil, http_method = 'GET')
       parameters = { :locale => I18n.default_locale.to_s }.merge(parameters || {} )

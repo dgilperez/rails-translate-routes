@@ -1,4 +1,7 @@
-# coding: UTF-8
+require 'rails-translate-routes/action_dispatch_routing_translator'
+require 'rails-translate-routes/helper'
+require 'rails-translate-routes/controller_helper'
+# require 'rails-translate-routes/controller_test_helper'
 
 # This class knows nothing about Rails.root or Rails.application.routes,
 # and therefore is easier to test without a Rails app.
@@ -6,10 +9,10 @@ class RailsTranslateRoutes
   TRANSLATABLE_SEGMENT = /^([\w-]+)(\.?:[\w-]+)?(\()?/.freeze
   LOCALE_PARAM_KEY = :locale.freeze
   ROUTE_HELPER_CONTAINER = [
-    ActionController::Base,
-    ActionView::Base,
-    ActionMailer::Base,
-    ActionDispatch::Routing::UrlFor
+    'ActionController::Base',
+    'ActionView::Base',
+    'ActionMailer::Base',
+    'ActionDispatch::Routing::UrlFor'
   ].freeze
 
   # Attributes
@@ -231,7 +234,6 @@ class RailsTranslateRoutes
       if root_route = original_named_routes[:root]
         add_root_route root_route, route_set
       end
-
     end
 
     # Add unmodified root route to route_set
@@ -258,11 +260,11 @@ class RailsTranslateRoutes
     # May also be called with explicit :locale option, e.g.
     #   user_path(1, :locale => :en) -> user_en_path(1)
     def add_untranslated_helpers_to_controllers_and_views old_name, route_helper_container
-
       ['path', 'url'].map do |suffix|
         new_helper_name = "#{old_name}_#{suffix}"
 
-        route_helper_container.each do |helper_container|
+        route_helper_container.each do |helper_container_item|
+          helper_container = helper_container_item.responds_to?(:constantize) ? helper_container_item.constantize : helper_container_item
           helper_container.send :define_method, new_helper_name do |*args|
             options = args.extract_options!
             locale = options.delete(:locale) || I18n.locale
@@ -313,6 +315,7 @@ class RailsTranslateRoutes
     # Re-generate untranslated routes (original routes) with name set to nil (which prevents conflict with default untranslated_urls)
     def untranslated_route route
       conditions = {}
+
       if Rails.version >= '3.2'
         conditions[:path_info] = route.path.spec.to_s
         conditions[:request_method] = parse_request_methods route.verb if route.verb != //
@@ -393,52 +396,10 @@ class RailsTranslateRoutes
   end
 end
 
-# Adapter for Rails 3 apps
-module ActionDispatch
-  module Routing
-    module Translator
-      class << self
-        def translate &block
-          RailsTranslateRoutes.init_with_yield(&block).translate Rails.application.routes
-        end
-
-        def translate_from_file(file_path, options = {})
-          file_path = %w(config locales routes.yml) if file_path.blank?
-          r = RailsTranslateRoutes.init_from_file(file_path)
-          r.prefix_on_default_locale = true if options && options[:prefix_on_default_locale] == true
-          r.no_prefixes = true if options && options[:no_prefixes] == true
-          r.keep_untranslated_routes = true if options && options[:keep_untranslated_routes] == true
-          r.translate Rails.application.routes
-        end
-
-        def i18n *locales
-          RailsTranslateRoutes.init_with_i18n(*locales).translate Rails.application.routes
-        end
-      end
-    end
-  end
-end
-
 # Add set_locale_from_url to controllers
-ActionController::Base.class_eval do
-  private
-  # called by before_filter
-  def set_locale_from_url
-    I18n.locale = params[RailsTranslateRoutes::LOCALE_PARAM_KEY]
-    default_url_options = {RailsTranslateRoutes::LOCALE_PARAM_KEY => I18n.locale}
-  end
-end
+ActionController::Base.send :include, Rails::TranslateRoutes::ControllerHelper
 
-module Rails
-  module TranslateRoutes
-    module Helper
-      def locale_suffix locale
-        RailsTranslateRoutes.locale_suffix locale
-      end
-    end
-  end
-end
-
-RailsTranslateRoutes::ROUTE_HELPER_CONTAINER.each do |klass|
-  klass.send :include, Rails::TranslateRoutes::Helper
+# Add locale_suffix to a bunch of classes
+RailsTranslateRoutes::ROUTE_HELPER_CONTAINER.each do |klass_name|
+  klass_name.constantize.send :include, Rails::TranslateRoutes::Helper
 end
