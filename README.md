@@ -2,12 +2,13 @@
 
 ## emjot-stable Branch
 
-This is a fork of francesc/rails-translate-routes with the following additions/bugfixes in the `emjot-stable` branch: 
+This is a fork of francesc/rails-translate-routes with the following additions/bugfixes in the `emjot-stable` branch:
 
+* (Dec 2014) Rails 4.2 support and dropping Rails 3.1 support
 * (Aug 2014) Rails 4 support (backward compatible with Rails 3)
-* (Apr 2014) Fix: keep mandatory format in translatated routes (without this fix, routes with a mandatory format 
+* (Apr 2014) Fix: keep mandatory format in translatated routes (without this fix, routes with a mandatory format
   (e.g. `events.:format`) lose the `.:format` part during translation)
-* (Apr 2014) Support `:locale` option for untranslated helpers (makes it possible to use e.g. 
+* (Apr 2014) Support `:locale` option for untranslated helpers (makes it possible to use e.g.
   `root_path(:locale => :fr)`)
 
 ## Installation
@@ -236,6 +237,8 @@ Contributors of the current gem:
   * Nicolas Arbogast (https://github.com/NicoArbogast)
   * Stephan van Eijkelenburg (https://github.com/stephanvane)
   * Víctor Martín (https://github.com/eltercero)
+  * Maximilian Herold (https://github.com/mherold)
+  * David Gil (https://github.com/dgilperez)
 
 Main development of forked gem:
   * Raul Murciano (http://github.com/raul)

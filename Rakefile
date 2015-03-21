@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "rails-translate-routes"
   gem.homepage = "http://github.com/francesc/rails-translate-routes"
   gem.license = "MIT"
-  gem.summary = %Q{Simple gem to translate routes in Rails 3.x}
-  gem.description = %Q{Simple gem to translate routes in Rails 3.x based on translate_routes}
+  gem.summary = %Q{Simple gem to translate routes in Rails 3.2 and Rails 4}
+  gem.description = %Q{Simple gem to translate routes in Rails 3.2 and Rails 4 based on translate_routes}
   gem.email = "francesc@francesc.net"
   gem.authors = ["Francesc Pla"]
   # dependencies defined in Gemfile
